@@ -13,7 +13,7 @@ namespace WorkflowCaptureWinFormsDemo
     [JsonObject(MemberSerialization.OptIn)]
     abstract class WorkflowCaptureDiagramShape : RadDiagramShape
     {
-        public virtual RadForm1.OperationType Operation { get; }
+        public virtual WorkflowCaptureForm.OperationType Operation { get; }
 
         public abstract RadPageViewPage BuildRadPageViewPage();
 

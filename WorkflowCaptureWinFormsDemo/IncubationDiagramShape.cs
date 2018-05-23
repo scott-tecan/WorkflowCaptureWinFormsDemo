@@ -17,7 +17,7 @@ namespace WorkflowCaptureWinFormsDemo
     {
         [JsonProperty("Operation")]
         [JsonConverter(typeof(StringEnumConverter))]
-        public RadForm1.OperationType Operation => RadForm1.OperationType.Incubation;
+        public WorkflowCaptureForm.OperationType Operation => WorkflowCaptureForm.OperationType.Incubation;
         [JsonProperty("Container")]
         public string Container { get; set; }
         [JsonProperty("Where")]
@@ -50,14 +50,14 @@ namespace WorkflowCaptureWinFormsDemo
 
         private void PopulateValues()
         {
-            textboxContainer.Text = Container;
+            //textboxContainer.Text = Container;
             textboxDuration.Text = Duration;
             textboxWhere.Text = Where;
             textboxCo2Percent.Text = Co2Percent.ToString("G");
             checkShake.Checked = Shaking;
         }
 
-        RadTextBox textboxContainer = new RadTextBox();
+        RadDropDownList dropdownContainer = new RadDropDownList();
         RadTextBox textboxWhere = new RadTextBox();
         RadTextBox textboxDuration = new RadTextBox();
         RadTextBox textboxShaking = new RadTextBox();
@@ -75,9 +75,14 @@ namespace WorkflowCaptureWinFormsDemo
             labelContainer.Location = new Point(10, 10);
             page.Controls.Add(labelContainer);
 
-            textboxContainer.Width = 140;
-            textboxContainer.Location = new Point(110, 10);
-            page.Controls.Add(textboxContainer);
+            foreach (var item in WorkflowCaptureForm.Containers)
+            {
+                dropdownContainer.Items.Add(new RadListDataItem(item.Value.Name, item.Value.Id));
+            }
+
+            dropdownContainer.Width = 140;
+            dropdownContainer.Location = new Point(110, 10);
+            page.Controls.Add(dropdownContainer);
 
             //Where
             RadLabel labelWhere = new RadLabel();
@@ -155,14 +160,18 @@ namespace WorkflowCaptureWinFormsDemo
         private void ButtonSaveComments_Click(object sender, EventArgs e)
         {
             Comments = textboxComments.Text;
+            RadMessageBox.Show("Incubation comments saved.");
+
         }
         private void ButtonSaveIncubation_Click(object sender, EventArgs e)
         {
-            Container = textboxContainer.Text;
+            //Container = textboxContainer.Text;
             Where = textboxWhere.Text;
             Duration = textboxDuration.Text;
             Co2Percent = decimal.Parse(textboxCo2Percent.Text);
             Shaking = checkShake.Checked;
+            RadMessageBox.Show("Incubation parameters saved.");
+
         }
 
         public override string GetJson()

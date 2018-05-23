@@ -16,7 +16,7 @@ namespace WorkflowCaptureWinFormsDemo
     {
         [JsonProperty("Operation")]
         [JsonConverter(typeof(StringEnumConverter))]
-        public RadForm1.OperationType Operation => RadForm1.OperationType.Centrifugation;
+        public WorkflowCaptureForm.OperationType Operation => WorkflowCaptureForm.OperationType.Centrifugation;
 
         [JsonProperty("Container")]
         public string Container { get; set; }
@@ -46,13 +46,13 @@ namespace WorkflowCaptureWinFormsDemo
             PopulateValues();
         }
 
-        RadTextBox textboxContainer = new RadTextBox();
+        RadDropDownList dropdownContainer = new RadDropDownList();
         RadTextBox textboxAcceleration = new RadTextBox();
         RadTextBox textboxDuration = new RadTextBox();
 
         private void PopulateValues()
         {
-            textboxContainer.Text = Container;
+            dropdownContainer.Text = Container;
             textboxAcceleration.Text = Acceleration;
             textboxDuration.Text = Duration;
         }
@@ -67,9 +67,14 @@ namespace WorkflowCaptureWinFormsDemo
             labelContainer.Location = new Point(10, 10);
             page.Controls.Add(labelContainer);
 
-            textboxContainer.Width = 140;
-            textboxContainer.Location = new Point(110, 10);
-            page.Controls.Add(textboxContainer);
+            foreach (var item in WorkflowCaptureForm.Containers)
+            {
+                dropdownContainer.Items.Add(new RadListDataItem(item.Value.Name, item.Value.Id));
+            }
+
+            dropdownContainer.Width = 140;
+            dropdownContainer.Location = new Point(110, 10);
+            page.Controls.Add(dropdownContainer);
 
             //Acceleration
             RadLabel labelAcceleration = new RadLabel();
@@ -128,12 +133,16 @@ namespace WorkflowCaptureWinFormsDemo
         private void ButtonSaveComments_Click(object sender, EventArgs e)
         {
             Comments = textboxComments.Text;
+            RadMessageBox.Show("Centrifugation comments saved.");
+
         }
         private void SaveButton_Click(object sender, EventArgs e)
         {
-            Container = textboxContainer.Text;
+            Container = dropdownContainer.Text;
             Acceleration = textboxAcceleration.Text;
             Duration = textboxDuration.Text;
+            RadMessageBox.Show("Centrifugation parameters saved.");
+
         }
 
         public override string GetJson()

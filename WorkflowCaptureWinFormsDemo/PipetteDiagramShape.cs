@@ -17,7 +17,7 @@ namespace WorkflowCaptureWinFormsDemo
     {
         [JsonProperty("Operation")]
         [JsonConverter(typeof(StringEnumConverter))]
-        public RadForm1.OperationType Operation => RadForm1.OperationType.Pipette;
+        public WorkflowCaptureForm.OperationType Operation => WorkflowCaptureForm.OperationType.Pipette;
 
         [JsonProperty("From")]
         public string From { get; set; }
@@ -48,7 +48,6 @@ namespace WorkflowCaptureWinFormsDemo
             base.SerializeChildren = true;
             base.SerializeElement = true;
             base.SerializeProperties = true;
-
             
             PopulateValues();
         }
@@ -57,16 +56,16 @@ namespace WorkflowCaptureWinFormsDemo
 
         private void PopulateValues()
         {
-            textboxFrom.Text = From;
-            textboxTo.Text = To;
+            dropdownFrom.Text = From;
+            dropdownTo.Text = To;
             textboxAspirateSpeed.Text = AspirateSpeed;
             textboxDispenseSpeed.Text = DispenseSpeed;
             textboxVolume.Text = Volume;
             textboxComments.Text = Comments;
         }
 
-        RadTextBox textboxFrom = new RadTextBox();
-        RadTextBox textboxTo = new RadTextBox();
+        RadDropDownList dropdownFrom = new RadDropDownList();
+        RadDropDownList dropdownTo = new RadDropDownList();
         RadTextBox textboxVolume = new RadTextBox();
         RadTextBox textboxAspirateSpeed = new RadTextBox();
         RadTextBox textboxDispenseSpeed = new RadTextBox();
@@ -76,15 +75,21 @@ namespace WorkflowCaptureWinFormsDemo
             var page = new RadPageViewPage();
             page.Text = Operation.ToString();
 
+            foreach (var item in WorkflowCaptureForm.Containers)
+            {
+                dropdownFrom.Items.Add(new RadListDataItem(item.Value.Name, item.Value.Id));
+                dropdownTo.Items.Add(new RadListDataItem(item.Value.Name, item.Value.Id));
+            }
+
             //from
             RadLabel labelFrom = new RadLabel();
             labelFrom.Text = "From: ";
             labelFrom.Location = new Point(10, 10);
             page.Controls.Add(labelFrom);
 
-            textboxFrom.Width = 200;
-            textboxFrom.Location = new Point(50, 10);
-            page.Controls.Add(textboxFrom);
+            dropdownFrom.Width = 200;
+            dropdownFrom.Location = new Point(50, 10);
+            page.Controls.Add(dropdownFrom);
 
             //to
             RadLabel labelTo = new RadLabel();
@@ -92,9 +97,9 @@ namespace WorkflowCaptureWinFormsDemo
             labelTo.Location = new Point(10, 40);
             page.Controls.Add(labelTo);
 
-            textboxTo.Width = 200;
-            textboxTo.Location = new Point(50, 40);
-            page.Controls.Add(textboxTo);
+            dropdownTo.Width = 200;
+            dropdownTo.Location = new Point(50, 40);
+            page.Controls.Add(dropdownTo);
 
             //volume
             RadLabel labelVolume = new RadLabel();
@@ -163,21 +168,19 @@ namespace WorkflowCaptureWinFormsDemo
         private void ButtonSaveComments_Click(object sender, EventArgs e)
         {
             Comments = textboxComments.Text;
+
+            RadMessageBox.Show("Pipette comments saved.");
         }
 
         private void ButtonSavePipette_Click(object sender, EventArgs e)
         {
-            From = textboxFrom.Text;
-            To = textboxTo.Text;
+            From = dropdownFrom.Text;
+            To = dropdownTo.Text;
             AspirateSpeed = textboxAspirateSpeed.Text;
             DispenseSpeed = textboxDispenseSpeed.Text;
             Volume = textboxVolume.Text;
 
-            //var settingsPane = RadForm1.GetSettingsPane();
-            ////settingsPane.RadPageView.Pages?.Clear();
-            //settingsPane.Close();
-
-
+            RadMessageBox.Show("Pipette parameters saved.");
         }
 
         public override string GetJson()

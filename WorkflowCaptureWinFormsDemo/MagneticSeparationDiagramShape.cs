@@ -16,7 +16,7 @@ namespace WorkflowCaptureWinFormsDemo
     {
         [JsonProperty("Operation")]
         [JsonConverter(typeof(StringEnumConverter))]
-        public RadForm1.OperationType Operation => RadForm1.OperationType.MagneticSeparation;
+        public WorkflowCaptureForm.OperationType Operation => WorkflowCaptureForm.OperationType.MagneticSeparation;
         [JsonProperty("Container")]
         public string Container { get; set; }
         [JsonProperty("Collect")]
@@ -48,14 +48,14 @@ namespace WorkflowCaptureWinFormsDemo
 
         private void PopulateValue()
         {
-            textboxContainer.Text = Container;
+            //textboxContainer.Text = Container;
             textboxCollect.Text = Collect;
             textboxRelease.Text = Release;
             textboxMix.Text = Mix;
         }
 
 
-        RadTextBox textboxContainer = new RadTextBox();
+        RadDropDownList dropdownContainer = new RadDropDownList();
         RadTextBox textboxRelease = new RadTextBox();
         RadTextBox textboxCollect = new RadTextBox();
         RadTextBox textboxMix = new RadTextBox();
@@ -71,9 +71,14 @@ namespace WorkflowCaptureWinFormsDemo
             labelContainer.Location = new Point(10, 10);
             page.Controls.Add(labelContainer);
 
-            textboxContainer.Width = 140;
-            textboxContainer.Location = new Point(110, 10);
-            page.Controls.Add(textboxContainer);
+            foreach (var item in WorkflowCaptureForm.Containers)
+            {
+                dropdownContainer.Items.Add(new RadListDataItem(item.Value.Name, item.Value.Id));
+            }
+
+            dropdownContainer.Width = 140;
+            dropdownContainer.Location = new Point(110, 10);
+            page.Controls.Add(dropdownContainer);
 
             //Collect
             RadLabel labelCollect = new RadLabel();
@@ -142,13 +147,16 @@ namespace WorkflowCaptureWinFormsDemo
         private void ButtonSaveComments_Click(object sender, EventArgs e)
         {
             Comments = textboxComments.Text;
+            RadMessageBox.Show("Magnetic Separation comments saved.");
+
         }
         private void ButtonSaveMagneticSeparation_Click(object sender, EventArgs e)
         {
-            Container = textboxContainer.Text;
+            //Container = textboxContainer.Text;
             Release = textboxRelease.Text;
             Mix = textboxMix.Text;
             Collect = textboxCollect.Text;
+            RadMessageBox.Show("Magnetic Separation parameters saved.");
         }
 
         public override string GetJson()

@@ -21,66 +21,19 @@ using Formatting = Newtonsoft.Json.Formatting;
 
 namespace WorkflowCaptureWinFormsDemo
 {
-    public partial class WorkflowCaptureForm : Telerik.WinControls.UI.RadForm
+    public partial class RadForm1 : Telerik.WinControls.UI.RadForm
     {
-        public static Dictionary<string, Container> Containers { get; set; } = new Dictionary<string, Container>();
-        public WorkflowCaptureForm()
+        public Dictionary<string, Container> Containers { get; set; } = new Dictionary<string, Container>();
+        public RadForm1()
         {
             InitializeComponent();
 
             radDiagram1.Serialized += RadDiagram1_Serialized;
+
+
             settingsPane = radDiagram1.DiagramElement.SettingsPane;
             settingsPane.RadPageView.Pages.Clear();
             radDiagram1.PreviewAdditionalContentActivated += RadDiagram1_PreviewAdditionalContentActivated;
-
-            DeserializeContainers();
-            ConstructToolbox();
-        }
-
-
-
-        private void ConstructToolbox()
-        {
-            radDiagramToolbox1.Items.Clear();
-            CreateToolboxGroups();
-            AddOperationsToToolbox();
-            AddContainersToToolbox();
-        }
-
-        private void AddOperationsToToolbox()
-        {
-            radDiagramToolbox1.Items.Add(BuildShape("Pipette"));
-            radDiagramToolbox1.Items.Add(BuildShape("Incubation"));
-            radDiagramToolbox1.Items.Add(BuildShape("Centrifugation"));
-            radDiagramToolbox1.Items.Add(BuildShape("Magnetic\r\nSeparation"));
-        }
-        private void AddContainersToToolbox()
-        {
-            foreach (var container in Containers.Values)
-            {
-                var temp = BuildContainerShape(container);
-                radDiagramToolbox1.Items.Add(temp);
-            }
-        }
-        private DiagramListViewDataItem BuildShape(string operation)
-        {
-            var item = new DiagramListViewDataItem() { Key = operation, };
-            item.Shape = new RoundRectShape(5);
-            item.Group = this.radDiagramToolbox1.Groups[0];
-            return item;
-        }
-
-        private DiagramListViewDataItem BuildContainerShape(Container container)
-        {
-            var shape = new DiagramListViewDataItem()
-            {
-                Key = container.Name,
-                Shape = new CircleShape(),
-                Size = new System.Drawing.Size(300, 100),
-                Group = this.radDiagramToolbox1.Groups[1]
-            };
-
-            return shape;
         }
 
         private void RadDiagram1_Serialized(object sender, Telerik.WinControls.UI.Diagrams.RoutedEventArgs e)
@@ -177,16 +130,15 @@ namespace WorkflowCaptureWinFormsDemo
 
         //}
 
-        private void CreateToolboxGroups()
-        {
-            this.radDiagramToolbox1.Groups.Clear();
+        //private void CreateToolboxGroups()
+        //{
+        //    this.radDiagramToolbox1.Groups.Clear();
 
-            var operationGroup = new ListViewDataItemGroup(){ Text = "Operations"};
-            this.radDiagramToolbox1.Groups.Add(operationGroup);
+        //    var operationGroup = new ListViewDataItemGroup();
+        //    operationGroup.Text = "Operations";
 
-            var containerGroup = new ListViewDataItemGroup() { Text = "Containers" };
-            this.radDiagramToolbox1.Groups.Add(containerGroup);
-        }
+        //    this.radDiagramToolbox1.Groups.Add(operationGroup);
+        //}
 
         public enum OperationType
         {
@@ -448,40 +400,7 @@ namespace WorkflowCaptureWinFormsDemo
 
             Containers[textboxId.Text] = aContainer;
 
-            var temp = BuildContainerShape(aContainer);
-            
-            radDiagramToolbox1.Items.Add(temp);
-            SerializeContainers();
-
             PopulateContainerDropDown();
-
-
-        }
-
-        private void SerializeContainers()
-        {
-            var containers = JsonConvert.SerializeObject(Containers);
-
-            using (StreamWriter sw = new StreamWriter(@".\containers.json", false))
-            {
-                sw.Write(containers);
-                sw.Flush();
-            }
-        }
-        private void DeserializeContainers()
-        {
-            var containers = default(string);
-            using (StreamReader sr = new StreamReader(@".\containers.json"))
-            {
-                // Read the stream to a string, and write the string to the console.
-                containers = sr.ReadToEnd();
-            }
-
-            Containers = JsonConvert.DeserializeObject<Dictionary<string, Container>>(containers);
-
-            PopulateContainerDropDown();
-
-
         }
 
         private void PopulateContainerDropDown()
@@ -490,101 +409,8 @@ namespace WorkflowCaptureWinFormsDemo
             foreach (var item in Containers.Values)
             {
                 var aContainer = new RadMenuItem(item.Name);
-                var temp = new RadListDataItem();
-                temp.Text = item.Name;
-                temp.Value = item.Id;
-                dropdownContainers.Items.Add(temp);
+                dropdownContainers.Items.Add(aContainer);
             }
-        }
-
-        private void radDropDownList1_SelectedIndexChanged(object sender, Telerik.WinControls.UI.Data.PositionChangedEventArgs e)
-        {
-            var dropDown = sender as RadDropDownList;
-            var dropdownItem = dropDown?.SelectedItem;
-            PopulateContainerForm(dropdownItem);
-        }
-
-        private void PopulateContainerForm(RadListDataItem dropdownItem)
-        {
-            if (dropdownContainers.SelectedIndex > -1)
-            {
-                var container = Containers[dropdownItem.Value.ToString()];
-
-                textboxName.Text = container.Name;
-                textboxId.Text = container.Id;
-                textboxStore.Text = container.Store;
-                textboxNew.Text = container.New;
-                checkDiscard.Checked = container.Discard;
-            }
-        }
-
-        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            ClearContainerForm();
-        }
-
-        private void ClearContainerForm()
-        {
-            textboxName.Text = "";
-            textboxId.Text = "";
-            textboxStore.Text = "";
-            textboxNew.Text = "";
-            checkDiscard.Checked = false;
-
-            dropdownContainers.SelectedIndex = -1;
-        }
-
-        private void radDiagramToolbox1_VisualItemFormatting(object sender, ListViewVisualItemEventArgs e)
-        {
-            var dataItem = e.VisualItem.Data as DiagramListViewDataItem;
-            //dataItem.Shape = new RadDiagramShape();
-            if (dataItem != null)
-            {
-                var el = e.VisualItem as DiagramListViewVisualItem;
-                if (el != null)
-                {
-                    switch (dataItem.Key)
-                    {
-                        case "Pipette":
-                            //el = new PipetteDiagramShape();
-                            el.ShapeElement.BackColor = Color.FromArgb(11, 187, 239);
-                            break;
-                        case "Magnetic\r\nSeparation":
-                            el.ShapeElement.BackColor = Color.FromArgb(234, 82, 151);
-                            break;
-                        case "Incubation":
-                            el.ShapeElement.BackColor = Color.FromArgb(149, 193, 31);
-                            break;
-                        case "Centrifugation":
-                            el.ShapeElement.BackColor = Color.FromArgb(255, 204, 0);
-                            break;
-                    }
-                }
-            }
-        }
-
-        private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            if (!string.IsNullOrEmpty(dropdownContainers.SelectedItem.Text))
-            {
-                var containerKey = dropdownContainers.SelectedItem.Value.ToString();
-                RemoveContainerFromToolbox(containerKey);
-                Containers.Remove(containerKey);
-                PopulateContainerDropDown();
-                ClearContainerForm();
-                SerializeContainers();
-                ConstructToolbox();
-            }
-        }
-
-        private void RemoveContainerFromToolbox(string containerKey)
-        {
-            
-        }
-
-        private void radDiagram1_DragDrop(object sender, DragEventArgs e)
-        {
-            var i = 0;
         }
     }
 }
